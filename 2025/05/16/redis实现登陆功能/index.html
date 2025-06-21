@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" integrity="sha256-DfWjNxDkM94fVBWx1H5BMMp0Zq7luBlV8QRcSES7s+0=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"8.156.76.137","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.11.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="整体登陆流程 1、验证码生成与发送机制用户点击”发送验证码”后，系统首先进行手机号格式校验，校验通过后生成6位数字验证码并存储到Redis中，设置5分钟过期时间。Redis的key采用规范化格式：login:code:&amp;#123;手机号&amp;#125;。 1234567891011121314151617181920public Result sendCode(String phone, HttpSe">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis实现登陆功能">
+<meta property="og:url" content="https://8.156.76.137/2025/05/16/redis%E5%AE%9E%E7%8E%B0%E7%99%BB%E9%99%86%E5%8A%9F%E8%83%BD/index.html">
+<meta property="og:site_name" content="秋衫霸霸">
+<meta property="og:description" content="整体登陆流程 1、验证码生成与发送机制用户点击”发送验证码”后，系统首先进行手机号格式校验，校验通过后生成6位数字验证码并存储到Redis中，设置5分钟过期时间。Redis的key采用规范化格式：login:code:&amp;#123;手机号&amp;#125;。 1234567891011121314151617181920public Result sendCode(String phone, HttpSe">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://8.156.76.137/images/redis%E5%AE%9E%E7%8E%B0%E7%99%BB%E9%99%86%E5%8A%9F%E8%83%BD/1.png">
+<meta property="og:image" content="https://8.156.76.137/images/redis%E5%AE%9E%E7%8E%B0%E7%99%BB%E9%99%86%E5%8A%9F%E8%83%BD/2.png">
+<meta property="article:published_time" content="2025-05-16T07:25:07.000Z">
+<meta property="article:modified_time" content="2025-06-19T15:07:09.485Z">
+<meta property="article:author" content="秋衫霸霸">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://8.156.76.137/images/redis%E5%AE%9E%E7%8E%B0%E7%99%BB%E9%99%86%E5%8A%9F%E8%83%BD/1.png">
+
+
+<link rel="canonical" href="https://8.156.76.137/2025/05/16/redis%E5%AE%9E%E7%8E%B0%E7%99%BB%E9%99%86%E5%8A%9F%E8%83%BD/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://8.156.76.137/2025/05/16/redis%E5%AE%9E%E7%8E%B0%E7%99%BB%E9%99%86%E5%8A%9F%E8%83%BD/","path":"2025/05/16/redis实现登陆功能/","title":"redis实现登陆功能"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>redis实现登陆功能 | 秋衫霸霸</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">秋衫霸霸</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E7%99%BB%E9%99%86%E6%B5%81%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">整体登陆流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1%E3%80%81%E9%AA%8C%E8%AF%81%E7%A0%81%E7%94%9F%E6%88%90%E4%B8%8E%E5%8F%91%E9%80%81%E6%9C%BA%E5%88%B6"><span class="nav-number">1.1.</span> <span class="nav-text">1、验证码生成与发送机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2%E3%80%81%E6%A0%B9%E6%8D%AE%E9%AA%8C%E8%AF%81%E7%A0%81%E7%99%BB%E9%99%86%E3%80%82"><span class="nav-number">1.2.</span> <span class="nav-text">2、根据验证码登陆。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3%E3%80%81%E7%99%BB%E9%99%86%E7%8A%B6%E6%80%81%E9%AA%8C%E8%AF%81"><span class="nav-number">1.3.</span> <span class="nav-text">3、登陆状态验证</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="秋衫霸霸"
+      src="/images/dame.png">
+  <p class="site-author-name" itemprop="name">秋衫霸霸</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://8.156.76.137/2025/05/16/redis%E5%AE%9E%E7%8E%B0%E7%99%BB%E9%99%86%E5%8A%9F%E8%83%BD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dame.png">
+      <meta itemprop="name" content="秋衫霸霸">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="秋衫霸霸">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="redis实现登陆功能 | 秋衫霸霸">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          redis实现登陆功能
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-05-16 15:25:07" itemprop="dateCreated datePublished" datetime="2025-05-16T15:25:07+08:00">2025-05-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-06-19 23:07:09" itemprop="dateModified" datetime="2025-06-19T23:07:09+08:00">2025-06-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="整体登陆流程"><a href="#整体登陆流程" class="headerlink" title="整体登陆流程"></a>整体登陆流程</h1><p><img src="/../images/redis%E5%AE%9E%E7%8E%B0%E7%99%BB%E9%99%86%E5%8A%9F%E8%83%BD/1.png"></p>
+<h2 id="1、验证码生成与发送机制"><a href="#1、验证码生成与发送机制" class="headerlink" title="1、验证码生成与发送机制"></a>1、验证码生成与发送机制</h2><p>用户点击”发送验证码”后，系统首先进行手机号格式校验，校验通过后生成6位数字验证码并存储到Redis中，设置5分钟过期时间。Redis的key采用规范化格式：<code>login:code:&#123;手机号&#125;</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> Result <span class="title function_">sendCode</span><span class="params">(String phone, HttpSession session)</span> &#123;</span><br><span class="line">    <span class="comment">// 校验手机号格式是否正确</span></span><br><span class="line">    <span class="keyword">if</span> (RegexUtils.isPhoneInvalid(phone)) &#123;</span><br><span class="line">        <span class="comment">// 如果手机号格式不正确，返回错误信息</span></span><br><span class="line">        <span class="keyword">return</span> Result.fail(<span class="string">&quot;手机号格式错误！&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 生成6位随机数字验证码</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">code</span> <span class="operator">=</span> RandomUtil.randomNumbers(<span class="number">6</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将验证码保存到Redis，设置5分钟有效期</span></span><br><span class="line">    <span class="comment">// key格式：login:code:&#123;手机号&#125;</span></span><br><span class="line">    redisTemplate.opsForValue().set(<span class="string">&quot;login:code:&quot;</span> + phone, code, <span class="number">5</span>, TimeUnit.MINUTES);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 模拟发送验证码，实际项目中这里应该调用短信服务API</span></span><br><span class="line">    log.debug(<span class="string">&quot;发送验证码成功！验证码为：&#123;&#125;&quot;</span>, code);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回成功响应</span></span><br><span class="line">    <span class="keyword">return</span> Result.ok();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2、根据验证码登陆。"><a href="#2、根据验证码登陆。" class="headerlink" title="2、根据验证码登陆。"></a>2、根据验证码登陆。</h2><p>收到验证码填写后，进行登陆。首先还是先校验手机号。校验失败返回错误提示。校验成功后开始校验验证码，验证码从redis里面通过手机号phone取，校验失败返回错误提示。校验成功后，通过手机号查询user表里是否有用户，如果没有则自动创建新用户。随后生成token，键为uuid，值为用户信息，并存储到redis中，设置过期时间30分钟。并把token返回给前端，后续前端的任何请求都会携带token。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> Result <span class="title function_">login</span><span class="params">(LoginFormDTO loginForm, HttpSession session)</span> &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">phone</span> <span class="operator">=</span> loginForm.getPhone();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 再次校验手机号格式</span></span><br><span class="line">    <span class="keyword">if</span> (RegexUtils.isPhoneInvalid(phone)) &#123;</span><br><span class="line">        <span class="keyword">return</span> Result.fail(<span class="string">&quot;手机号格式错误！&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">String</span> <span class="variable">code</span> <span class="operator">=</span> loginForm.getCode();</span><br><span class="line">    <span class="comment">// 从Redis获取之前存储的验证码</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">cacheCode</span> <span class="operator">=</span> redisTemplate.opsForValue().get(<span class="string">&quot;login:code:&quot;</span> + phone);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 验证码校验：检查是否存在或是否匹配</span></span><br><span class="line">    <span class="keyword">if</span> (cacheCode == <span class="literal">null</span> || !cacheCode.equals(code)) &#123;</span><br><span class="line">        <span class="keyword">return</span> Result.fail(<span class="string">&quot;验证码错误！&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 验证通过，根据手机号查询用户</span></span><br><span class="line">    <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> query().eq(<span class="string">&quot;phone&quot;</span>, phone).one();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 判断用户是否存在，不存在则自动注册</span></span><br><span class="line">    <span class="keyword">if</span> (user == <span class="literal">null</span>) &#123;</span><br><span class="line">        user = createUserWithPhone(phone);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 生成登录令牌token（UUID的简化版，不带连字符）</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">token</span> <span class="operator">=</span> UUID.randomUUID().toString(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将User对象转换为UserDTO对象（数据传输对象，通常包含较少敏感字段）</span></span><br><span class="line">    <span class="type">UserDTO</span> <span class="variable">userDTO</span> <span class="operator">=</span> BeanUtil.copyProperties(user, UserDTO.class);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将UserDTO转为Map，便于存入Redis的Hash结构</span></span><br><span class="line">    Map&lt;String, Object&gt; userMap = BeanUtil.beanToMap(userDTO);</span><br><span class="line">    <span class="comment">// 将Map中的所有值转为String类型，因为Redis要求值为String</span></span><br><span class="line">    userMap.replaceAll((k, v) -&gt; v.toString());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将用户信息以Hash结构存入Redis</span></span><br><span class="line">    <span class="comment">// key格式：login:token:&#123;token&#125;</span></span><br><span class="line">    redisTemplate.opsForHash().putAll(<span class="string">&quot;login:token:&quot;</span> + token, userMap);</span><br><span class="line">    <span class="comment">// 设置token的有效期为30分钟</span></span><br><span class="line">    redisTemplate.expire(<span class="string">&quot;login:token:&quot;</span> + token, <span class="number">30</span>, TimeUnit.MINUTES);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回token给客户端</span></span><br><span class="line">    <span class="keyword">return</span> Result.ok(token);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> User <span class="title function_">createUserWithPhone</span><span class="params">(String phone)</span> &#123;</span><br><span class="line">    <span class="comment">// 创建用户对象</span></span><br><span class="line">    <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line">    <span class="comment">// 设置手机号</span></span><br><span class="line">    user.setPhone(phone);</span><br><span class="line">    <span class="comment">// 设置默认昵称：前缀 + 10位随机字符串</span></span><br><span class="line">    user.setNickName(USER_NICK_NAME_PREFIX + RandomUtil.randomString(<span class="number">10</span>));</span><br><span class="line">    <span class="comment">// 保存用户到数据库</span></span><br><span class="line">    save(user);</span><br><span class="line">    <span class="comment">// 返回创建的用户对象</span></span><br><span class="line">    <span class="keyword">return</span> user;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3、登陆状态验证"><a href="#3、登陆状态验证" class="headerlink" title="3、登陆状态验证"></a>3、登陆状态验证</h2><p><img src="/../images/redis%E5%AE%9E%E7%8E%B0%E7%99%BB%E9%99%86%E5%8A%9F%E8%83%BD/2.png"></p>
+<p>登陆成功后还没完成。需要通过token来验证是否是登陆中。使用两层拦截器。第一层拦截器拦截所有请求，如果token存在且redis中token的值没有过期，则从redis中取出用户并保存到ThreadLocal，并且刷新token有效期。否则直接放行。第二层拦截器就判断ThreadLocal是否有值，如果没有说明没有登陆，直接拦截。否则就放行。这样就保证了在使用的过程中token会不断刷新有效期，只有没有使用的时候token才会过期。</p>
+<p><strong>第一层拦截器</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.hmdp.interceptor;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> cn.hutool.core.bean.BeanUtil;</span><br><span class="line"><span class="keyword">import</span> cn.hutool.core.util.StrUtil;</span><br><span class="line"><span class="keyword">import</span> com.hmdp.dto.UserDTO;</span><br><span class="line"><span class="keyword">import</span> com.hmdp.utils.UserHolder;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.core.StringRedisTemplate;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.HandlerInterceptor;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 第一层拦截器</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RefreshInterceptor</span> <span class="keyword">implements</span> <span class="title class_">HandlerInterceptor</span> &#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> StringRedisTemplate redisTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">preHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">// 从请求头中获取token</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">token</span> <span class="operator">=</span> request.getHeader(<span class="string">&quot;authorization&quot;</span>);</span><br><span class="line">        <span class="comment">// 判断token是否为空，为空则直接放行</span></span><br><span class="line">        <span class="keyword">if</span> (StrUtil.isBlank(token)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 基于token从Redis中获取用户信息</span></span><br><span class="line">        <span class="comment">// Redis中用户信息以Hash结构存储，key格式为&quot;login:token:&#123;token值&#125;&quot;</span></span><br><span class="line">        Map&lt;Object, Object&gt; userEntries = redisTemplate.opsForHash().entries(<span class="string">&quot;login:token:&quot;</span> + token);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 判断用户信息是否存在，不存在则直接放行</span></span><br><span class="line">        <span class="keyword">if</span> (userEntries.isEmpty()) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将Redis中的用户数据转换为UserDTO对象</span></span><br><span class="line">        <span class="type">UserDTO</span> <span class="variable">userDTO</span> <span class="operator">=</span> BeanUtil.fillBeanWithMap(userEntries, <span class="keyword">new</span> <span class="title class_">UserDTO</span>(), <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将用户信息存入ThreadLocal，便于当前线程后续使用</span></span><br><span class="line">        UserHolder.saveUser(userDTO);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 刷新Redis中token的过期时间，延长用户登录状态</span></span><br><span class="line">        <span class="comment">// 设置为30分钟</span></span><br><span class="line">        redisTemplate.expire(<span class="string">&quot;login:token:&quot;</span> + token, <span class="number">30</span> * <span class="number">60</span>, TimeUnit.SECONDS);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 放行请求</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">afterCompletion</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">//移除用户</span></span><br><span class="line">        UserHolder.removeUser();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>第二层拦截器</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.hmdp.interceptor;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.hmdp.utils.UserHolder;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.HandlerInterceptor;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 第二层拦截器</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TokenInterceptor</span> <span class="keyword">implements</span> <span class="title class_">HandlerInterceptor</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">preHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">//第一层拦截器过后，如果threadLocal没有用户，说明没有登录，返回401</span></span><br><span class="line">        <span class="keyword">if</span> (UserHolder.getUser() == <span class="literal">null</span>) &#123;</span><br><span class="line">            response.setStatus(<span class="number">401</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">afterCompletion</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">//移除用户</span></span><br><span class="line">        UserHolder.removeUser();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>拦截器配置</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.hmdp.config;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.hmdp.interceptor.RefreshInterceptor;</span><br><span class="line"><span class="keyword">import</span> com.hmdp.interceptor.TokenInterceptor;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Configurable;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.config.annotation.InterceptorRegistry;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.config.annotation.WebMvcConfigurer;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MvcConfig</span> <span class="keyword">implements</span> <span class="title class_">WebMvcConfigurer</span> &#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> TokenInterceptor tokenInterceptor;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RefreshInterceptor refreshInterceptor;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addInterceptors</span><span class="params">(InterceptorRegistry registry)</span> &#123;</span><br><span class="line">        registry.addInterceptor(tokenInterceptor).</span><br><span class="line">                excludePathPatterns(<span class="string">&quot;/user/code&quot;</span>,<span class="string">&quot;/user/login&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;/shop/**&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;/blog/hot&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;/shop-type/**&quot;</span>).order(<span class="number">1</span>);</span><br><span class="line">        registry.addInterceptor(refreshInterceptor).addPathPatterns(<span class="string">&quot;/**&quot;</span>).order(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight fsharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> Result queryById(Long <span class="built_in">id</span>) &#123;</span><br><span class="line">    <span class="comment">// 1.查询Redis</span></span><br><span class="line">    String shopJson <span class="operator">=</span> stringRedisTemplate.opsForValue().<span class="built_in">get</span>(<span class="string">&quot;cache:shop:&quot;</span> <span class="operator">+</span> <span class="built_in">id</span>);</span><br><span class="line">    <span class="comment">// 2.判断是否存在</span></span><br><span class="line">    <span class="keyword">if</span> (StrUtil.isNotBlank(shopJson)) &#123;</span><br><span class="line">        <span class="comment">// 3.存在，直接返回</span></span><br><span class="line">        Shop shop1 <span class="operator">=</span> JSONUtil.toBean(shopJson, Shop.<span class="keyword">class</span>);</span><br><span class="line">        <span class="keyword">return</span> Result.ok(shop1);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//  4.不存在，根据id查询数据库</span></span><br><span class="line">    Shop shop <span class="operator">=</span> getById(<span class="built_in">id</span>);</span><br><span class="line">    <span class="keyword">if</span>(shop<span class="operator">==</span><span class="literal">null</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> Result.fail(<span class="string">&quot;店铺不存在&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    stringRedisTemplate.opsForValue().<span class="built_in">set</span>(<span class="string">&quot;cache:shop:&quot;</span> <span class="operator">+</span> <span class="built_in">id</span>, JSONUtil.toJsonStr(shop));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> Result.ok(shop);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/05/13/%E4%BD%8D%E8%BF%90%E7%AE%97/" rel="prev" title="位运算">
+                  <i class="fa fa-chevron-left"></i> 位运算
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/06/04/leetcode-Hot-100/" rel="next" title="leetcode_Hot_100">
+                  leetcode_Hot_100 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">秋衫霸霸</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
