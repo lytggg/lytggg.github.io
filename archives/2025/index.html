@@ -1742,7 +1742,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     debug: "env",
     cdn: {"js":{"app":"/js/app.js","parallax":"/js/plugins/parallax.js","rightMenu":"/js/plugins/rightMenu.js","rightMenus":"/js/plugins/rightMenus.js","sites":"/js/plugins/tags/sites.js","friends":"/js/plugins/tags/friends.js","contributors":"/js/plugins/tags/contributors.js","search":"/js/search/hexo.js"},"css":{"style":"/css/style.css"}},
     default: {"avatar":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/avatar/round/3442075.svg","link":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/link/8f277b4ee0ecd.svg","cover":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/cover/76b86c0226ffd.svg","image":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/image/2659360.svg"},
-    lastupdate: new Date(1751205034484),
+    lastupdate: new Date(1751207492224),
     sidebar: {
       for_page: ["blogger","category","tagcloud","donate"],
       for_post: ["toc"],
@@ -2304,17 +2304,8 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 				</ul>
 			</div>
       
-      <div class="m_search">
-        <form name="searchform" class="form u-search-form">
-          <i class="icon fa-solid fa-search fa-fw"></i>
-          <input type="text" class="input u-search-input" placeholder="Search..." />
-        </form>
-      </div>
-      
 
 			<ul class='switcher nav-list-h m-phone'>
-				
-					<li><a class="s-search fa-solid fa-search fa-fw" target="_self" href="/" onclick="return false;" title="search"></a></li>
 				
 				<li>
           <a class="s-menu fa-solid fa-bars fa-fw" target="_self" href="/" onclick="return false;" title="menu"></a>
@@ -2491,10 +2482,10 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
               <img src='https://unpkg.com/volantis-static@0.0.1654736714924/media/twemoji/assets/svg/1f4f0.svg'><p>博客</p>
             </a>
           
-            <a target="_blank" rel="noopener" href="https://github.com/volantis-x/hexo-theme-volantis/"
+            <a href="/archives/"
               
               
-              active-action="action-https:githubcomvolantis-xhexo-theme-volantis">
+              active-action="action-archives">
               <img src='https://unpkg.com/volantis-static@0.0.1654736714924/media/twemoji/assets/svg/1f9ec.svg'><p>源码</p>
             </a>
           
@@ -2534,62 +2525,9 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
         
           
         
-          
-        
       
     
     
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow floatable blur"  itemscope itemtype="http://schema.org/Article" >
-  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2025/06/29/我的/">
-  <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="Hexo">
-  </span>
-  <span hidden itemprop="post" itemscope itemtype="http://schema.org/Post">
-    <meta itemprop="name" content="Hexo">
-    <meta itemprop="description" content="test description">
-  </span>
-  
-  
-  
-    <span hidden>
-      <meta itemprop="image" content="https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png">
-    </span>
-  
-  
-    
-    <h2 class="article-title"  itemprop="name headline">
-      <a href="/2025/06/29/%E6%88%91%E7%9A%84/"  itemprop="url">
-        我的
-      </a>
-    </h2>
-  
-  <div class='md article-desc' itemprop="articleBody">
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time itemprop="dateCreated datePublished" datetime="2025-06-29T21:40:40+08:00">2025-06-29</time>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2025/06/29/%E6%88%91%E7%9A%84/' itemprop="url">
-            Read More
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
       
         
           <div class='post-wrapper'>
@@ -2619,7 +2557,31 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   <div class='md article-desc' itemprop="articleBody">
     
-      <h1 id="缓存穿透问题的解决思路"><a href="#缓存穿透问题的解决思路" class="headerlink" title="缓存穿透问题的解决思路"></a>缓存穿透问题的解决思路</h1><p>缓存穿透 ：缓存穿透是指客户端请求的数据在缓存中和数据库中都不存在，这样缓存永远不会生效，这些请求都会打到数据库。
+      
+        缓存穿透问题的解决思路缓存穿透 ：缓存穿透是指客户端请求的数据在缓存中和数据库中都不存在，这样缓存永远不会生效，这些请求都会打到数据库。
+常见的解决方案有两种：
+
+缓存空对象
+优点：实现简单，维护方便
+缺点：
+额外的内存消耗
+可能造成短期的不一致
+
+
+
+
+布隆过滤
+优点：内存占用较少，没有多余key
+缺点：
+实现复杂
+存在误判可能
+
+
+
+
+
+缓存空对象思路分析：当我们客户端访问不存在的数据时...
+      
     
   </div>
   
@@ -2672,15 +2634,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   <div class='md article-desc' itemprop="articleBody">
     
-      
-        记录一下算法
-二叉树（Morris）二叉树的中序遍历(√)给定一个二叉树的根节点 root ，返回 它的 中序 遍历 。
-
-12输入：root = [1,null,2,3]输出：[1,3,2]
-
-解法：没啥好说的。
-123456789101112131415161718192021222324252627/** * Definition for a binary tree node. * s...
-      
+      <p>记录一下算法
     
   </div>
   
@@ -2733,8 +2687,12 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   <div class='md article-desc' itemprop="articleBody">
     
-      <h1 id="为什么HashMap要求容量必须是2的幂？"><a href="#为什么HashMap要求容量必须是2的幂？" class="headerlink" title="为什么HashMap要求容量必须是2的幂？"></a>为什么HashMap要求容量必须是2的幂？</h1><p>🎯 当mask(length-1)的所有低位都是1时，hash值的每一位都能影响最终的索引计算</p>
-<p>🎯 如果mask某位是0，那么hash值对应位的信息就丢失了，导致分布不均匀</p>
+      
+        为什么HashMap要求容量必须是2的幂？🎯 当mask(length-1)的所有低位都是1时，hash值的每一位都能影响最终的索引计算
+🎯 如果mask某位是0，那么hash值对应位的信息就丢失了，导致分布不均匀
+length &#x3D; 16    &#x3D; 10000 (二进制)length-1 &#x3D; 15  &#x3D; 01111 (二进制) ← 低4位全为1！
+...
+      
     
   </div>
   
@@ -2795,7 +2753,13 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   <div class='md article-desc' itemprop="articleBody">
     
-      <p>本篇记录了leetcode的hot100的解题思路。
+      
+        本篇记录了leetcode的hot100的解题思路。
+哈希字母异位词给你一个字符串数组，请你将 字母异位词 组合在一起。可以按任意顺序返回结果列表。
+字母异位词 是由重新排列源单词的所有字母得到的一个新单词。
+示例 1:
+12输入: strs = [&quot;eat&quot;, &quot;tea&quot;, &quot;tan&quot;, &quot;ate&quot;, &quo...
+      
     
   </div>
   
@@ -3441,57 +3405,6 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 
 
 <!-- optional -->
-
-  <script>
-  const SearchServiceDataPathRoot = ("/" || "/").endsWith("/") ?
-    "/" || "/" :
-    "//" || "/";
-  const SearchServiceDataPath = SearchServiceDataPathRoot + "content.json";
-
-  function loadSearchScript() {
-    // see: layout/_partial/scripts/_ctrl/cdnCtrl.ejs
-    return volantis.js("/js/search/hexo.js");
-  }
-
-  function loadSearchService() {
-    loadSearchScript();
-    document.querySelectorAll(".input.u-search-input").forEach((e) => {
-      e.removeEventListener("focus", loadSearchService, false);
-    });
-
-    document.querySelectorAll(".u-search-form").forEach((e) => {
-      e.addEventListener("submit", (event) => {
-        event.preventDefault();
-      }, false);
-    });
-  }
-
-  // 打开并搜索 字符串 s
-  function OpenSearch(s) {
-    if (typeof SearchService === 'undefined')
-      loadSearchScript().then(() => {
-        SearchService.setQueryText(s);
-        SearchService.search();
-      });
-    else {
-      SearchService.setQueryText(s);
-      SearchService.search();
-    }
-  }
-
-  // 访问含有 ?s=xxx  的链接时打开搜索 // 与搜索引擎 structured data 相关: /scripts/helpers/structured-data/lib/config.js
-  if (window.location.search && /^\?s=/g.test(window.location.search)) {
-    let queryText = decodeURI(window.location.search)
-      .replace(/\ /g, "-")
-      .replace(/^\?s=/g, "");
-    OpenSearch(queryText);
-  }
-
-  // 搜索输入框获取焦点时加载搜索
-  document.querySelectorAll(".input.u-search-input").forEach((e) => {
-    e.addEventListener("focus", loadSearchService, false);
-  });
-</script>
 
 
 

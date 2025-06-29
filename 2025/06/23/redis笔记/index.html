@@ -35,17 +35,17 @@
   <!-- 页面元数据 -->
   <title>redis笔记 - Hexo</title>
   <meta name="keywords" content="null">
-  <meta desc name="description" content="缓存穿透问题的解决思路缓存穿透 ：缓存穿透是指客户端请求的数据在缓存中和数据库中都不存在，这样缓存永远不会生效，这些请求都会打到数据库。 - John Doe - Hexo">
+  <meta desc name="description" content="test description - John Doe - Hexo">
   
 <meta property="og:type" content="article">
 <meta property="og:title" content="redis笔记">
 <meta property="og:url" content="http://yoursite.com/2025/06/23/redis%E7%AC%94%E8%AE%B0/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="缓存穿透问题的解决思路缓存穿透 ：缓存穿透是指客户端请求的数据在缓存中和数据库中都不存在，这样缓存永远不会生效，这些请求都会打到数据库。">
+<meta property="og:description" content="缓存穿透问题的解决思路缓存穿透 ：缓存穿透是指客户端请求的数据在缓存中和数据库中都不存在，这样缓存永远不会生效，这些请求都会打到数据库。 常见的解决方案有两种：  缓存空对象 优点：实现简单，维护方便 缺点： 额外的内存消耗 可能造成短期的不一致     布隆过滤 优点：内存占用较少，没有多余key 缺点： 实现复杂 存在误判可能      缓存空对象思路分析：当我们客户端访问不存在的数据时，先请">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png">
 <meta property="article:published_time" content="2025-06-23T09:00:55.000Z">
-<meta property="article:modified_time" content="2025-06-25T09:53:49.922Z">
+<meta property="article:modified_time" content="2025-06-29T14:19:33.350Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png">
@@ -1744,7 +1744,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     debug: "env",
     cdn: {"js":{"app":"/js/app.js","parallax":"/js/plugins/parallax.js","rightMenu":"/js/plugins/rightMenu.js","rightMenus":"/js/plugins/rightMenus.js","sites":"/js/plugins/tags/sites.js","friends":"/js/plugins/tags/friends.js","contributors":"/js/plugins/tags/contributors.js","search":"/js/search/hexo.js"},"css":{"style":"/css/style.css"}},
     default: {"avatar":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/avatar/round/3442075.svg","link":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/link/8f277b4ee0ecd.svg","cover":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/cover/76b86c0226ffd.svg","image":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/image/2659360.svg"},
-    lastupdate: new Date(1751205034484),
+    lastupdate: new Date(1751207492224),
     sidebar: {
       for_page: ["blogger","category","tagcloud","donate"],
       for_post: ["toc"],
@@ -2306,17 +2306,8 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 				</ul>
 			</div>
       
-      <div class="m_search">
-        <form name="searchform" class="form u-search-form">
-          <i class="icon fa-solid fa-search fa-fw"></i>
-          <input type="text" class="input u-search-input" placeholder="Search..." />
-        </form>
-      </div>
-      
 
 			<ul class='switcher nav-list-h m-phone'>
-				
-					<li><a class="s-search fa-solid fa-search fa-fw" target="_self" href="/" onclick="return false;" title="search"></a></li>
 				
 				<li>
           <a class="s-menu fa-solid fa-bars fa-fw" target="_self" href="/" onclick="return false;" title="menu"></a>
@@ -2493,10 +2484,10 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
               <img src='https://unpkg.com/volantis-static@0.0.1654736714924/media/twemoji/assets/svg/1f4f0.svg'><p>博客</p>
             </a>
           
-            <a target="_blank" rel="noopener" href="https://github.com/volantis-x/hexo-theme-volantis/"
+            <a href="/archives/"
               
               
-              active-action="action-https:githubcomvolantis-xhexo-theme-volantis">
+              active-action="action-archives">
               <img src='https://unpkg.com/volantis-static@0.0.1654736714924/media/twemoji/assets/svg/1f9ec.svg'><p>源码</p>
             </a>
           
@@ -2585,7 +2576,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 
   <div id="layoutHelper-page-plugins"></div>
   <div id="post-body" itemprop="articleBody">
-    <h1 id="缓存穿透问题的解决思路"><a href="#缓存穿透问题的解决思路" class="headerlink" title="缓存穿透问题的解决思路"></a>缓存穿透问题的解决思路</h1><p>缓存穿透 ：缓存穿透是指客户端请求的数据在缓存中和数据库中都不存在，这样缓存永远不会生效，这些请求都会打到数据库。<span id="more"></span></p>
+    <h1 id="缓存穿透问题的解决思路"><a href="#缓存穿透问题的解决思路" class="headerlink" title="缓存穿透问题的解决思路"></a>缓存穿透问题的解决思路</h1><p>缓存穿透 ：缓存穿透是指客户端请求的数据在缓存中和数据库中都不存在，这样缓存永远不会生效，这些请求都会打到数据库。</p>
 <p>常见的解决方案有两种：</p>
 <ul>
 <li>缓存空对象<ul>
@@ -3785,10 +3776,10 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateModified" datetime="2025-06-25T17:53:49+08:00">
+          <div class="new-meta-item date" itemprop="dateModified" datetime="2025-06-29T22:19:33+08:00">
   <a class='notlink'>
     <i class="fa-solid fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Jun 25, 2025</p>
+    <p>更新于：Jun 29, 2025</p>
   </a>
 </div>
 
@@ -3807,7 +3798,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2025/06/23/redis%E7%AC%94%E8%AE%B0/&title=redis笔记 - Hexo&summary=缓存穿透问题的解决思路缓存穿透 ：缓存穿透是指客户端请求的数据在缓存中和数据库中都不存在，这样缓存永远不会生效，这些请求都会打到数据库。"
+          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2025/06/23/redis%E7%AC%94%E8%AE%B0/&title=redis笔记 - Hexo&summary="
           
           >
           
@@ -3819,7 +3810,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://yoursite.com/2025/06/23/redis%E7%AC%94%E8%AE%B0/&title=redis笔记 - Hexo&summary=缓存穿透问题的解决思路缓存穿透 ：缓存穿透是指客户端请求的数据在缓存中和数据库中都不存在，这样缓存永远不会生效，这些请求都会打到数据库。"
+          target="_blank" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://yoursite.com/2025/06/23/redis%E7%AC%94%E8%AE%B0/&title=redis笔记 - Hexo&summary="
           
           >
           
@@ -3831,7 +3822,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="http://service.weibo.com/share/share.php?url=http://yoursite.com/2025/06/23/redis%E7%AC%94%E8%AE%B0/&title=redis笔记 - Hexo&summary=缓存穿透问题的解决思路缓存穿透 ：缓存穿透是指客户端请求的数据在缓存中和数据库中都不存在，这样缓存永远不会生效，这些请求都会打到数据库。"
+          target="_blank" href="http://service.weibo.com/share/share.php?url=http://yoursite.com/2025/06/23/redis%E7%AC%94%E8%AE%B0/&title=redis笔记 - Hexo&summary="
           
           >
           
@@ -3863,11 +3854,6 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 
   
     <div class="prev-next">
-      
-        <a class='prev' href='/2025/06/29/%E6%88%91%E7%9A%84/'>
-          <p class='title'><i class="fa-solid fa-chevron-left" aria-hidden="true"></i>我的</p>
-          <p class='content'></p>
-        </a>
       
       
         <a class='next' href='/2025/06/22/%E5%8A%9B%E6%89%A3100%E7%83%AD%E9%A2%98/'>
@@ -4247,57 +4233,6 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 
 <!-- optional -->
 
-  <script>
-  const SearchServiceDataPathRoot = ("/" || "/").endsWith("/") ?
-    "/" || "/" :
-    "//" || "/";
-  const SearchServiceDataPath = SearchServiceDataPathRoot + "content.json";
-
-  function loadSearchScript() {
-    // see: layout/_partial/scripts/_ctrl/cdnCtrl.ejs
-    return volantis.js("/js/search/hexo.js");
-  }
-
-  function loadSearchService() {
-    loadSearchScript();
-    document.querySelectorAll(".input.u-search-input").forEach((e) => {
-      e.removeEventListener("focus", loadSearchService, false);
-    });
-
-    document.querySelectorAll(".u-search-form").forEach((e) => {
-      e.addEventListener("submit", (event) => {
-        event.preventDefault();
-      }, false);
-    });
-  }
-
-  // 打开并搜索 字符串 s
-  function OpenSearch(s) {
-    if (typeof SearchService === 'undefined')
-      loadSearchScript().then(() => {
-        SearchService.setQueryText(s);
-        SearchService.search();
-      });
-    else {
-      SearchService.setQueryText(s);
-      SearchService.search();
-    }
-  }
-
-  // 访问含有 ?s=xxx  的链接时打开搜索 // 与搜索引擎 structured data 相关: /scripts/helpers/structured-data/lib/config.js
-  if (window.location.search && /^\?s=/g.test(window.location.search)) {
-    let queryText = decodeURI(window.location.search)
-      .replace(/\ /g, "-")
-      .replace(/^\?s=/g, "");
-    OpenSearch(queryText);
-  }
-
-  // 搜索输入框获取焦点时加载搜索
-  document.querySelectorAll(".input.u-search-input").forEach((e) => {
-    e.addEventListener("focus", loadSearchService, false);
-  });
-</script>
-
 
 
 
@@ -4504,7 +4439,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </script>
 
 
-  <script type="application/ld+json">[{"@context":"http://schema.org","@type":"Organization","name":"Hexo","url":"http://yoursite.com/","logo":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}},{"@context":"http://schema.org","@type":"Person","name":"John Doe","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png"},"url":"http://yoursite.com/","sameAs":["https://github.com/volantis-x"],"description":"test description"},{"@context":"http://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@id":"http://yoursite.com/","name":"Hexo"}},{"@type":"ListItem","position":3,"item":{"@id":"http://yoursite.com/2025/06/23/redis笔记/","name":"redis笔记"}}]},{"@context":"http://schema.org","@type":"WebSite","name":"Hexo","url":"http://yoursite.com/","keywords":null,"description":"test description","author":{"@type":"Person","name":"John Doe","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png"},"url":"http://yoursite.com/","description":"test description"},"publisher":{"@type":"Organization","name":"Hexo","url":"http://yoursite.com/","logo":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}},"potentialAction":{"@type":"SearchAction","name":"Site Search","target":{"@type":"EntryPoint","urlTemplate":"http://yoursite.com?s={search_term_string}"},"query-input":"required name=search_term_string"}},{"@context":"http://schema.org","@type":"BlogPosting","headline":"redis笔记","description":"缓存穿透问题的解决思路缓存穿透 ：缓存穿透是指客户端请求的数据在缓存中和数据库中都不存在，这样缓存永远不会生效，这些请求都会打到数据库。","inLanguage":"en","mainEntityOfPage":{"@type":"WebPage","@id":"http://yoursite.com/2025/06/23/redis%E7%AC%94%E8%AE%B0/"},"author":{"@type":"Person","name":"John Doe","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png"},"url":"http://yoursite.com/"},"publisher":{"@type":"Organization","name":"Hexo","logo":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}},"url":"http://yoursite.com/2025/06/23/redis%E7%AC%94%E8%AE%B0/","wordCount":68,"datePublished":"2025-06-23T09:00:55.000Z","dateModified":"2025-06-25T09:53:49.922Z","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}}]</script>
+  <script type="application/ld+json">[{"@context":"http://schema.org","@type":"Organization","name":"Hexo","url":"http://yoursite.com/","logo":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}},{"@context":"http://schema.org","@type":"Person","name":"John Doe","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png"},"url":"http://yoursite.com/","sameAs":["https://github.com/volantis-x"],"description":"test description"},{"@context":"http://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@id":"http://yoursite.com/","name":"Hexo"}},{"@type":"ListItem","position":3,"item":{"@id":"http://yoursite.com/2025/06/23/redis笔记/","name":"redis笔记"}}]},{"@context":"http://schema.org","@type":"WebSite","name":"Hexo","url":"http://yoursite.com/","keywords":null,"description":"test description","author":{"@type":"Person","name":"John Doe","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png"},"url":"http://yoursite.com/","description":"test description"},"publisher":{"@type":"Organization","name":"Hexo","url":"http://yoursite.com/","logo":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}},"potentialAction":{"@type":"SearchAction","name":"Site Search","target":{"@type":"EntryPoint","urlTemplate":"http://yoursite.com?s={search_term_string}"},"query-input":"required name=search_term_string"}},{"@context":"http://schema.org","@type":"BlogPosting","headline":"redis笔记","description":"test description","inLanguage":"en","mainEntityOfPage":{"@type":"WebPage","@id":"http://yoursite.com/2025/06/23/redis%E7%AC%94%E8%AE%B0/"},"author":{"@type":"Person","name":"John Doe","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png"},"url":"http://yoursite.com/"},"publisher":{"@type":"Organization","name":"Hexo","logo":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}},"url":"http://yoursite.com/2025/06/23/redis%E7%AC%94%E8%AE%B0/","wordCount":0,"datePublished":"2025-06-23T09:00:55.000Z","dateModified":"2025-06-29T14:19:33.350Z","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}}]</script>
 
 
 

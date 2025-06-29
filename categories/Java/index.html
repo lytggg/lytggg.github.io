@@ -33,13 +33,13 @@
 
   <!-- feed -->
   <!-- 页面元数据 -->
-  <title>Category: Java - Hexo</title>
+  <title>Category: java - Hexo</title>
   <meta name="keywords" content="null">
   <meta desc name="description" content="test description - John Doe - Hexo">
   
 <meta property="og:type" content="website">
 <meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/categories/Java/index.html">
+<meta property="og:url" content="http://yoursite.com/categories/java/index.html">
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="test description">
 <meta property="og:locale" content="en_US">
@@ -1742,7 +1742,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     debug: "env",
     cdn: {"js":{"app":"/js/app.js","parallax":"/js/plugins/parallax.js","rightMenu":"/js/plugins/rightMenu.js","rightMenus":"/js/plugins/rightMenus.js","sites":"/js/plugins/tags/sites.js","friends":"/js/plugins/tags/friends.js","contributors":"/js/plugins/tags/contributors.js","search":"/js/search/hexo.js"},"css":{"style":"/css/style.css"}},
     default: {"avatar":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/avatar/round/3442075.svg","link":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/link/8f277b4ee0ecd.svg","cover":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/cover/76b86c0226ffd.svg","image":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/image/2659360.svg"},
-    lastupdate: new Date(1751205034484),
+    lastupdate: new Date(1751207492224),
     sidebar: {
       for_page: ["blogger","category","tagcloud","donate"],
       for_post: ["toc"],
@@ -2304,17 +2304,8 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 				</ul>
 			</div>
       
-      <div class="m_search">
-        <form name="searchform" class="form u-search-form">
-          <i class="icon fa-solid fa-search fa-fw"></i>
-          <input type="text" class="input u-search-input" placeholder="Search..." />
-        </form>
-      </div>
-      
 
 			<ul class='switcher nav-list-h m-phone'>
-				
-					<li><a class="s-search fa-solid fa-search fa-fw" target="_self" href="/" onclick="return false;" title="search"></a></li>
 				
 				<li>
           <a class="s-menu fa-solid fa-bars fa-fw" target="_self" href="/" onclick="return false;" title="menu"></a>
@@ -2491,10 +2482,10 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
               <img src='https://unpkg.com/volantis-static@0.0.1654736714924/media/twemoji/assets/svg/1f4f0.svg'><p>博客</p>
             </a>
           
-            <a target="_blank" rel="noopener" href="https://github.com/volantis-x/hexo-theme-volantis/"
+            <a href="/archives/"
               
               
-              active-action="action-https:githubcomvolantis-xhexo-theme-volantis">
+              active-action="action-archives">
               <img src='https://unpkg.com/volantis-static@0.0.1654736714924/media/twemoji/assets/svg/1f9ec.svg'><p>源码</p>
             </a>
           
@@ -2531,7 +2522,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
         
           <div class='post-wrapper'>
             <div class="post post-v3 white-box reveal shadow floatable blur"  itemscope itemtype="http://schema.org/Article" >
-  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2025/06/05/Java八股随想录/">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2025/05/16/redis实现登陆功能/">
   <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
     <meta itemprop="name" content="Hexo">
   </span>
@@ -2549,35 +2540,38 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
     
     <h2 class="article-title"  itemprop="name headline">
-      <a href="/2025/06/05/Java%E5%85%AB%E8%82%A1%E9%9A%8F%E6%83%B3%E5%BD%95/"  itemprop="url">
-        随看随记
+      <a href="/2025/05/16/redis%E5%AE%9E%E7%8E%B0%E7%99%BB%E9%99%86%E5%8A%9F%E8%83%BD/"  itemprop="url">
+        redis实现登陆功能
       </a>
     </h2>
   
   <div class='md article-desc' itemprop="articleBody">
     
-      <h1 id="为什么HashMap要求容量必须是2的幂？"><a href="#为什么HashMap要求容量必须是2的幂？" class="headerlink" title="为什么HashMap要求容量必须是2的幂？"></a>为什么HashMap要求容量必须是2的幂？</h1><p>🎯 当mask(length-1)的所有低位都是1时，hash值的每一位都能影响最终的索引计算</p>
-<p>🎯 如果mask某位是0，那么hash值对应位的信息就丢失了，导致分布不均匀</p>
+      
+        整体登陆流程
+1、验证码生成与发送机制用户点击”发送验证码”后，系统首先进行手机号格式校验，校验通过后生成6位数字验证码并存储到Redis中，设置5分钟过期时间。Redis的key采用规范化格式：login:code:&#123;手机号&#125;。
+1234567891011121314151617181920public Result sendCode(String phone, Htt...
+      
     
   </div>
   
     <div class='meta-v3' line_style='solid'>
       <div>
         
-        <time itemprop="dateCreated datePublished" datetime="2025-06-05T23:44:30+08:00">2025-06-05</time>
+        <time itemprop="dateCreated datePublished" datetime="2025-05-16T15:25:07+08:00">2025-05-16</time>
         
           <span class="dot"></span>
-          <a class="category-link" href="/categories/Java/">Java</a>
+          <a class="category-link" href="/categories/java/">java</a>
           
             <span hidden itemprop="about" itemscope itemtype="http://schema.org/Thing">
-              <a href="/categories/Java/" itemprop="url"><span itemprop="name">Java</span></a>
+              <a href="/categories/java/" itemprop="url"><span itemprop="name">java</span></a>
             </span>
           
         
       </div>
       
         <div>
-          <a class='readmore' href='/2025/06/05/Java%E5%85%AB%E8%82%A1%E9%9A%8F%E6%83%B3%E5%BD%95/' itemprop="url">
+          <a class='readmore' href='/2025/05/16/redis%E5%AE%9E%E7%8E%B0%E7%99%BB%E9%99%86%E5%8A%9F%E8%83%BD/' itemprop="url">
             Read More
           </a>
         </div>
@@ -3020,57 +3014,6 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 
 <!-- optional -->
 
-  <script>
-  const SearchServiceDataPathRoot = ("/" || "/").endsWith("/") ?
-    "/" || "/" :
-    "//" || "/";
-  const SearchServiceDataPath = SearchServiceDataPathRoot + "content.json";
-
-  function loadSearchScript() {
-    // see: layout/_partial/scripts/_ctrl/cdnCtrl.ejs
-    return volantis.js("/js/search/hexo.js");
-  }
-
-  function loadSearchService() {
-    loadSearchScript();
-    document.querySelectorAll(".input.u-search-input").forEach((e) => {
-      e.removeEventListener("focus", loadSearchService, false);
-    });
-
-    document.querySelectorAll(".u-search-form").forEach((e) => {
-      e.addEventListener("submit", (event) => {
-        event.preventDefault();
-      }, false);
-    });
-  }
-
-  // 打开并搜索 字符串 s
-  function OpenSearch(s) {
-    if (typeof SearchService === 'undefined')
-      loadSearchScript().then(() => {
-        SearchService.setQueryText(s);
-        SearchService.search();
-      });
-    else {
-      SearchService.setQueryText(s);
-      SearchService.search();
-    }
-  }
-
-  // 访问含有 ?s=xxx  的链接时打开搜索 // 与搜索引擎 structured data 相关: /scripts/helpers/structured-data/lib/config.js
-  if (window.location.search && /^\?s=/g.test(window.location.search)) {
-    let queryText = decodeURI(window.location.search)
-      .replace(/\ /g, "-")
-      .replace(/^\?s=/g, "");
-    OpenSearch(queryText);
-  }
-
-  // 搜索输入框获取焦点时加载搜索
-  document.querySelectorAll(".input.u-search-input").forEach((e) => {
-    e.addEventListener("focus", loadSearchService, false);
-  });
-</script>
-
 
 
 
@@ -3277,7 +3220,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </script>
 
 
-  <script type="application/ld+json">[{"@context":"http://schema.org","@type":"Organization","name":"Hexo","url":"http://yoursite.com/","logo":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}},{"@context":"http://schema.org","@type":"Person","name":"John Doe","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png"},"url":"http://yoursite.com/","sameAs":["https://github.com/volantis-x"],"description":"test description"},{"@context":"http://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@id":"http://yoursite.com/","name":"Hexo"}},{"@type":"ListItem","position":2,"item":{"@id":"http://yoursite.com/categories/Java/","name":"Java"}}]},{"@context":"http://schema.org","@type":"WebSite","name":"Hexo","url":"http://yoursite.com/","keywords":null,"description":"test description","author":{"@type":"Person","name":"John Doe","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png"},"url":"http://yoursite.com/","description":"test description"},"publisher":{"@type":"Organization","name":"Hexo","url":"http://yoursite.com/","logo":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}},"potentialAction":{"@type":"SearchAction","name":"Site Search","target":{"@type":"EntryPoint","urlTemplate":"http://yoursite.com?s={search_term_string}"},"query-input":"required name=search_term_string"}},{"@context":"http://schema.org","@type":"BlogPosting","description":"test description","inLanguage":"en","mainEntityOfPage":{"@type":"WebPage"},"author":{"@type":"Person","name":"John Doe","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png"},"url":"http://yoursite.com/"},"publisher":{"@type":"Organization","name":"Hexo","logo":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}},"wordCount":0,"image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}}]</script>
+  <script type="application/ld+json">[{"@context":"http://schema.org","@type":"Organization","name":"Hexo","url":"http://yoursite.com/","logo":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}},{"@context":"http://schema.org","@type":"Person","name":"John Doe","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png"},"url":"http://yoursite.com/","sameAs":["https://github.com/volantis-x"],"description":"test description"},{"@context":"http://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@id":"http://yoursite.com/","name":"Hexo"}},{"@type":"ListItem","position":2,"item":{"@id":"http://yoursite.com/categories/java/","name":"java"}}]},{"@context":"http://schema.org","@type":"WebSite","name":"Hexo","url":"http://yoursite.com/","keywords":null,"description":"test description","author":{"@type":"Person","name":"John Doe","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png"},"url":"http://yoursite.com/","description":"test description"},"publisher":{"@type":"Organization","name":"Hexo","url":"http://yoursite.com/","logo":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}},"potentialAction":{"@type":"SearchAction","name":"Site Search","target":{"@type":"EntryPoint","urlTemplate":"http://yoursite.com?s={search_term_string}"},"query-input":"required name=search_term_string"}},{"@context":"http://schema.org","@type":"BlogPosting","description":"test description","inLanguage":"en","mainEntityOfPage":{"@type":"WebPage"},"author":{"@type":"Person","name":"John Doe","image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png"},"url":"http://yoursite.com/"},"publisher":{"@type":"Organization","name":"Hexo","logo":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}},"wordCount":0,"image":{"@type":"ImageObject","url":"https://unpkg.com/volantis-static@0.0.1654736714924/media/org.volantis/blog/favicon/android-chrome-192x192.png","width":192,"height":192}}]</script>
 
 
 
