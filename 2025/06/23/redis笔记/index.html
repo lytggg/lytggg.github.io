@@ -1744,7 +1744,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     debug: "env",
     cdn: {"js":{"app":"/js/app.js","parallax":"/js/plugins/parallax.js","rightMenu":"/js/plugins/rightMenu.js","rightMenus":"/js/plugins/rightMenus.js","sites":"/js/plugins/tags/sites.js","friends":"/js/plugins/tags/friends.js","contributors":"/js/plugins/tags/contributors.js","search":"/js/search/hexo.js"},"css":{"style":"/css/style.css"}},
     default: {"avatar":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/avatar/round/3442075.svg","link":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/link/8f277b4ee0ecd.svg","cover":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/cover/76b86c0226ffd.svg","image":"https://unpkg.com/volantis-static@0.0.1654736714924/media/placeholder/image/2659360.svg"},
-    lastupdate: new Date(1751207492224),
+    lastupdate: new Date(1751484283908),
     sidebar: {
       for_page: ["blogger","category","tagcloud","donate"],
       for_post: ["toc"],
@@ -2306,8 +2306,17 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 				</ul>
 			</div>
       
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fa-solid fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+      
 
 			<ul class='switcher nav-list-h m-phone'>
+				
+					<li><a class="s-search fa-solid fa-search fa-fw" target="_self" href="/" onclick="return false;" title="search"></a></li>
 				
 				<li>
           <a class="s-menu fa-solid fa-bars fa-fw" target="_self" href="/" onclick="return false;" title="menu"></a>
@@ -2434,7 +2443,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       <!-- see: /layout/_partial/scripts/_ctrl/coverCtrl.ejs -->
       <div id="none" class='cover-wrapper post dock' style="display: none;">
         
-  <div class='cover-bg lazyload placeholder' data-bg="https://gcore.jsdelivr.net/gh/MHG-LAB/cron@gh-pages/bing/bing.jpg"></div>
+  <div class='cover-bg lazyload placeholder' data-bg="/images/lyt2.jpg"></div>
 
 <div class='cover-body'>
   <div class='top'>
@@ -4233,6 +4242,57 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 
 <!-- optional -->
 
+  <script>
+  const SearchServiceDataPathRoot = ("/" || "/").endsWith("/") ?
+    "/" || "/" :
+    "//" || "/";
+  const SearchServiceDataPath = SearchServiceDataPathRoot + "content.json";
+
+  function loadSearchScript() {
+    // see: layout/_partial/scripts/_ctrl/cdnCtrl.ejs
+    return volantis.js("/js/search/hexo.js");
+  }
+
+  function loadSearchService() {
+    loadSearchScript();
+    document.querySelectorAll(".input.u-search-input").forEach((e) => {
+      e.removeEventListener("focus", loadSearchService, false);
+    });
+
+    document.querySelectorAll(".u-search-form").forEach((e) => {
+      e.addEventListener("submit", (event) => {
+        event.preventDefault();
+      }, false);
+    });
+  }
+
+  // 打开并搜索 字符串 s
+  function OpenSearch(s) {
+    if (typeof SearchService === 'undefined')
+      loadSearchScript().then(() => {
+        SearchService.setQueryText(s);
+        SearchService.search();
+      });
+    else {
+      SearchService.setQueryText(s);
+      SearchService.search();
+    }
+  }
+
+  // 访问含有 ?s=xxx  的链接时打开搜索 // 与搜索引擎 structured data 相关: /scripts/helpers/structured-data/lib/config.js
+  if (window.location.search && /^\?s=/g.test(window.location.search)) {
+    let queryText = decodeURI(window.location.search)
+      .replace(/\ /g, "-")
+      .replace(/^\?s=/g, "");
+    OpenSearch(queryText);
+  }
+
+  // 搜索输入框获取焦点时加载搜索
+  document.querySelectorAll(".input.u-search-input").forEach((e) => {
+    e.addEventListener("focus", loadSearchService, false);
+  });
+</script>
+
 
 
 
@@ -4522,6 +4582,304 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     <!-- import body_end end-->
     <!-- Custom Files bodyEnd begin-->
     
+    <script>
+    // 每日背景图片轮换
+    (function() {
+        // 背景图片列表
+        const backgrounds = [
+            '/images/lyt.jpg',
+            '/images/lyt2.jpg'
+        ];
+        
+        // 获取今天是一年中的第几天
+        function getDayOfYear() {
+            const now = new Date();
+            const start = new Date(now.getFullYear(), 0, 0);
+            const diff = now - start;
+            const oneDay = 1000 * 60 * 60 * 24;
+            return Math.floor(diff / oneDay);
+        }
+        
+        // 设置每日背景
+        function setDailyBackground() {
+            const dayOfYear = getDayOfYear();
+            const bgIndex = dayOfYear % backgrounds.length;
+            const selectedBg = backgrounds[bgIndex];
+            
+            // 使用Volantis的API查找封面元素
+            const coverElement = document.querySelector('.cover');
+            if (coverElement) {
+                coverElement.style.backgroundImage = `url('${selectedBg}')`;
+                console.log(`今日背景: ${selectedBg} (第${dayOfYear}天，索引${bgIndex})`);
+            }
+        }
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', setDailyBackground);
+        
+        // 支持Pjax（根据文档，Volantis有pjax支持）
+        if (typeof volantis !== 'undefined' && volantis.pjax) {
+            volantis.pjax.push(setDailyBackground, 'dailyBackground');
+        }
+    })();
+    </script>
+  <!-- source/_volantis/bodyEnd.ejs -->
+<!-- 自动检测图片数量的背景切换 -->
+<script>
+console.log('=== 自动检测图片背景切换脚本启动 ===');
+
+(function() {
+    // 配置区域
+    const config = {
+        // 图片文件夹路径
+        imagePath: '/images/',
+        
+        // 图片文件名前缀
+        prefix: 'lyt',
+        
+        // 图片文件扩展名
+        extensions: ['jpg', 'jpeg', 'png', 'webp'],
+        
+        // 最大检测数量（防止无限循环）
+        maxImages: 50,
+        
+        // 轮换策略
+        strategy: 'daily' // daily, weekly, monthly, random
+    };
+    
+    let backgrounds = [];
+    let imageCount = 0;
+    
+    // 检测图片是否存在
+    function checkImageExists(url) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve(true);
+            img.onerror = () => resolve(false);
+            img.src = url;
+        });
+    }
+    
+    // 自动检测所有可用的背景图片
+    async function detectBackgroundImages() {
+        console.log('正在自动检测背景图片...');
+        
+        const detectedImages = [];
+        
+        for (let i = 1; i <= config.maxImages; i++) {
+            let found = false;
+            
+            // 尝试不同的扩展名
+            for (const ext of config.extensions) {
+                const imageName = `${config.prefix}${i}.${ext}`;
+                const imageUrl = `${config.imagePath}${imageName}`;
+                
+                const exists = await checkImageExists(imageUrl);
+                if (exists) {
+                    detectedImages.push({
+                        url: imageUrl,
+                        name: `背景图片 ${i}`,
+                        index: i
+                    });
+                    found = true;
+                    break; // 找到这个编号的图片就跳出扩展名循环
+                }
+            }
+            
+            // 如果连续3个编号都没找到图片，停止检测
+            if (!found) {
+                let consecutiveNotFound = 1;
+                for (let j = i + 1; j <= i + 2 && j <= config.maxImages; j++) {
+                    let foundNext = false;
+                    for (const ext of config.extensions) {
+                        const nextImageUrl = `${config.imagePath}${config.prefix}${j}.${ext}`;
+                        if (await checkImageExists(nextImageUrl)) {
+                            foundNext = true;
+                            break;
+                        }
+                    }
+                    if (!foundNext) consecutiveNotFound++;
+                }
+                
+                if (consecutiveNotFound >= 3) {
+                    console.log(`连续3个编号(${i}-${i+2})未找到图片，停止检测`);
+                    break;
+                }
+            }
+        }
+        
+        backgrounds = detectedImages;
+        imageCount = backgrounds.length;
+        
+        console.log(`✅ 检测完成! 找到 ${imageCount} 张背景图片:`);
+        backgrounds.forEach((bg, index) => {
+            console.log(`  ${index + 1}. ${bg.name} (${bg.url})`);
+        });
+        
+        return imageCount > 0;
+    }
+    
+    // 获取今天应该显示的背景索引
+    function getTodayBackgroundIndex() {
+        if (imageCount === 0) return 0;
+        
+        let index = 0;
+        const today = new Date();
+        
+        switch (config.strategy) {
+            case 'daily':
+                const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+                index = dayOfYear % imageCount;
+                break;
+                
+            case 'weekly':
+                index = today.getDay() % imageCount;
+                break;
+                
+            case 'monthly':
+                index = today.getMonth() % imageCount;
+                break;
+                
+            case 'random':
+                // 基于日期的伪随机，确保同一天显示相同图片
+                const dateStr = today.toDateString();
+                let hash = 0;
+                for (let i = 0; i < dateStr.length; i++) {
+                    const char = dateStr.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                index = Math.abs(hash) % imageCount;
+                break;
+        }
+        
+        return index;
+    }
+    
+    // 设置背景图片
+    function setBackgroundImage() {
+        if (imageCount === 0) {
+            console.warn('❌ 没有找到任何背景图片');
+            return;
+        }
+        
+        const bgIndex = getTodayBackgroundIndex();
+        const selectedBg = backgrounds[bgIndex];
+        
+        console.log(`策略: ${config.strategy}, 索引: ${bgIndex}, 选中: ${selectedBg.name}`);
+        
+        const coverBgElement = document.querySelector('.cover-bg');
+        if (coverBgElement) {
+            coverBgElement.style.backgroundImage = `url('${selectedBg.url}')`;
+            coverBgElement.style.backgroundSize = 'cover';
+            coverBgElement.style.backgroundPosition = 'center';
+            coverBgElement.style.backgroundRepeat = 'no-repeat';
+            
+            console.log(`✅ 背景设置成功: ${selectedBg.name}`);
+            
+            // 显示背景信息
+            showBackgroundNotification(selectedBg, bgIndex);
+        } else {
+            console.warn('❌ 未找到.cover-bg元素');
+        }
+    }
+    
+    // 显示背景通知
+    function showBackgroundNotification(bg, index) {
+        // 移除已存在的通知
+        const existing = document.getElementById('bg-notification');
+        if (existing) existing.remove();
+        
+        const notification = document.createElement('div');
+        notification.id = 'bg-notification';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, rgba(0,0,0,0.8), rgba(50,50,50,0.8));
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            max-width: 300px;
+        `;
+        
+        notification.innerHTML = `
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 18px; margin-right: 8px;">🎨</span>
+                <span style="font-weight: bold;">今日背景</span>
+            </div>
+            <div style="margin-bottom: 5px;">${bg.name}</div>
+            <div style="font-size: 12px; opacity: 0.7;">
+                ${index + 1}/${imageCount} · ${config.strategy} 模式
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // 显示动画
+        setTimeout(() => {
+            notification.style.opacity = '1';
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // 5秒后隐藏
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
+    }
+    
+    // 主函数
+    async function init() {
+        console.log('开始初始化背景切换系统...');
+        
+        // 等待DOM加载
+        if (document.readyState === 'loading') {
+            await new Promise(resolve => {
+                document.addEventListener('DOMContentLoaded', resolve);
+            });
+        }
+        
+        // 检测背景图片
+        const hasImages = await detectBackgroundImages();
+        
+        if (hasImages) {
+            // 延迟一下确保页面完全加载
+            setTimeout(setBackgroundImage, 500);
+        } else {
+            console.warn('❌ 未找到任何背景图片，请检查图片路径和命名规则');
+            console.log('📋 图片命名规则示例:');
+            console.log('  - /images/bg1.jpg');
+            console.log('  - /images/bg2.png');
+            console.log('  - /images/bg3.webp');
+            console.log('  - ...');
+        }
+    }
+    
+    // Pjax支持
+    if (typeof volantis !== 'undefined' && volantis.pjax) {
+        volantis.pjax.push(async () => {
+            if (imageCount > 0) {
+                setTimeout(setBackgroundImage, 100);
+            }
+        }, 'autoBackgroundPjax');
+    }
+    
+    // 启动
+    init();
+    
+})();
+
+console.log('=== 自动检测图片背景切换脚本加载完成 ===');
+</script>
     <!-- Custom Files bodyEnd end-->
     <!-- front-matter body_end begin -->
     <!-- front-matter body_end end -->
